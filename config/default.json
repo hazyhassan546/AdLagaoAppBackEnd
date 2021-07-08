@@ -1,0 +1,4 @@
+{
+  "mongoUrl": "mongodb://helloWorld:helloWorld@adlagaocluster-shard-00-00.yj42l.mongodb.net:27017,adlagaocluster-shard-00-01.yj42l.mongodb.net:27017,adlagaocluster-shard-00-02.yj42l.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-p44fyp-shard-0&authSource=admin&retryWrites=true&w=majority",
+  "jwtSecret": "myJwtSectrets"
+}
