@@ -72,7 +72,7 @@ router.post(
 router.get("/GetMyAds", authMiddleware, async (req, res) => {
   try {
     const user = req.user.id;
-    let Ads = await Ad.find({ user });
+    let Ads = await Ad.find({ user: user });
     res.send(Ads);
   } catch (error) {
     return res
@@ -80,7 +80,6 @@ router.get("/GetMyAds", authMiddleware, async (req, res) => {
       .json({ errors: [{ msg: "INTERNAL SERVER ERROR " + error }] });
   }
 });
-
 
 //  method POST
 //  path   /api/ads/createComment
@@ -115,6 +114,103 @@ router.post(
       } else {
         res.status(400).json({ errors: [{ msg: "No Ad Exist " }] });
       }
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ errors: [{ msg: "INTERNAL SERVER ERROR " + error }] });
+    }
+  }
+);
+
+//  method POST
+//  path   /api/ads/updateAd
+router.post(
+  "/updateAd",
+  body("add_id", "add_id is required").not().isEmpty(),
+  body("title", "title is required").not().isEmpty(),
+  body("photos", "photos is required").not().isEmpty(),
+  body("description", "description is required").not().isEmpty(),
+  body("price", "price is required").not().isEmpty(),
+  body("country", "country is required").not().isEmpty(),
+  body("city", "city is required").not().isEmpty(),
+  body("category", "category is required").not().isEmpty(),
+  body("subCategory", "subCategory is required").not().isEmpty(),
+  authMiddleware,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors);
+    }
+    try {
+      const userId = req.user.id;
+      // here we have the user now we can look for respective add
+      const {
+        add_id,
+        title,
+        photos,
+        description,
+        price,
+        country,
+        city,
+        category,
+        subCategory,
+        views,
+        status,
+      } = req.body;
+      // -----------------------  lets Find Ad  --------------------------
+      const ad = await Ad.findOneAndUpdate(
+        {
+          user: userId,
+          _id: add_id,
+        },
+        {
+          $set: {
+            title,
+            photos,
+            description,
+            price,
+            country,
+            city,
+            category,
+            subCategory,
+            views,
+            status,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+      res.send(ad);
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ errors: [{ msg: "INTERNAL SERVER ERROR " + error }] });
+    }
+  }
+);
+
+//  method POST
+//  path   /api/ads/deleteAd
+router.post(
+  "/deleteAd",
+  body("add_id", "add_id is required").not().isEmpty(),
+  authMiddleware,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors);
+    }
+    try {
+      const userId = req.user.id;
+      // here we have the user now we can look for respective add
+      const { add_id } = req.body;
+      // -----------------------  lets Find Ad  --------------------------
+      await Ad.findOneAndDelete({
+        user: userId,
+        _id: add_id,
+      });
+      res.send("Ad deleted Successfully");
     } catch (error) {
       return res
         .status(500)
